@@ -22,6 +22,8 @@ import javax.annotation.PostConstruct;
 @RestController
 public class ClientApplication {
 
+	private static final String SERVER_NAME = "service-app";
+
 	@Autowired
 	EurekaClient eurekaClient;
 
@@ -33,17 +35,17 @@ public class ClientApplication {
 
 	@PostConstruct
 	private void postConstruct() {
-		InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("service", false);
+		InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka(SERVER_NAME, false);
 		System.out.println("Found service: " + instanceInfo.getHomePageUrl());
 
-		ServiceInstance serviceInstance = discoveryClient.getInstances("service").get(0);
+		ServiceInstance serviceInstance = discoveryClient.getInstances(SERVER_NAME).get(0);
 		System.out.println("Found service: " + serviceInstance.getHost() + ":" + serviceInstance.getPort());
 	}
 
 	@RequestMapping("/")
 	public String message() {
 		RestTemplate restTemplate = restTemplateBuilder.build();
-		InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("service", false);
+		InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka(SERVER_NAME, false);
 		ResponseEntity<String> response = restTemplate.exchange(instanceInfo.getHomePageUrl(),
 				HttpMethod.GET, null, String.class);
 		return response.getBody();
